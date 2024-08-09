@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Redirecionador para WhatsApp</title>
+  </head>
+  <body>
+    <button id="whatsappButton">Entrar em Contato</button>
+
+    <script>
+      document
+        .getElementById("whatsappButton")
+        .addEventListener("click", function () {
+          const protocolCode = generateProtocolCode();
+          const utmSource = getQueryVariable("utm_source");
+          const utmMedium = getQueryVariable("utm_medium");
+          const utmCampaign = getQueryVariable("utm_campaign");
+          const utmTerm = getQueryVariable("utm_term");
+          const utmContent = getQueryVariable("utm_content");
+          const timestamp = new Date().toISOString();
+
+          const message = `Olá, meu código de protocolo é: ${protocolCode}`;
+          const whatsappNumber = "5511999999999"; // Substitua pelo número do WhatsApp desejado.
+          const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
+            message
+          )}`;
+
+          saveDataToSheet(
+            protocolCode,
+            utmSource,
+            utmMedium,
+            utmCampaign,
+            utmTerm,
+            utmContent,
+            timestamp
+          );
+          window.location.href = whatsappLink;
+        });
+
+      function generateProtocolCode() {
+        return "PRTCL-" + Math.random().toString(36).substr(2, 9).toUpperCase();
+      }
+
+      function getQueryVariable(variable) {
+        const query = window.location.search.substring(1);
+        const vars = query.split("&");
+        for (let i = 0; i < vars.length; i++) {
+          const pair = vars[i].split("=");
+          if (pair[0] === variable) {
+            return pair[1];
+          }
+        }
+        return null;
+      }
+
+      function saveDataToSheet(
+        protocolCode,
+        utmSource,
+        utmMedium,
+        utmCampaign,
+        utmTerm,
+        utmContent,
+        timestamp
+      ) {
+        fetch("https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec", {
+          method: "POST",
+          body: JSON.stringify({
+            protocolCode: protocolCode,
+            utmSource: utmSource,
+            utmMedium: utmMedium,
+            utmCampaign: utmCampaign,
+            utmTerm: utmTerm,
+            utmContent: utmContent,
+            timestamp: timestamp,
+          }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+      }
+    </script>
+  </body>
+</html>
